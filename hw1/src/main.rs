@@ -5,18 +5,17 @@ use rayon::{prelude::*, ThreadPoolBuilder};
 const MAX_BOUND: usize = 100_000_000;
 const NUM_THREADS: usize = 8;
 
-
 fn test_serial_sieve(sieve: &mut [bool]) -> Duration {
     use std::time::Instant;
     let now = Instant::now();
 
     let max_iterations = (MAX_BOUND as f64).sqrt() as usize;
+    sieve[0] = false;
+    sieve[1] = false;
 
     for i in 2..max_iterations {
-        // println!("Iteration {i}");
         if !sieve[i] { continue }
         for j in ((i * 2)..MAX_BOUND).step_by(i) {
-            // println!("\tSetting {j} to false");
             sieve[j] = false;
         }
     }
@@ -30,6 +29,8 @@ fn test_parallel_sieve(sieve: &mut [bool]) -> Duration {
 
     let max_iterations = (MAX_BOUND as f64).sqrt().ceil() as usize;
     ThreadPoolBuilder::new().num_threads(NUM_THREADS).build().unwrap();
+    sieve[0] = false;
+    sieve[1] = false;
 
     for i in 2..max_iterations {
         if !sieve[i] { continue }
@@ -54,9 +55,6 @@ fn markoff_sieve(sieve: &mut [bool], slice_start: usize, step_size: usize) {
     for index in (start_index..sieve.len()).step_by(step_size) {
         sieve[index] = false;
     }
-    // for element in sieve.iter().skip(start_index).step_by(step_size) {
-    //     *element = false;
-    // }
 }
 
 fn main() {
